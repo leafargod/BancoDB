@@ -43,7 +43,6 @@ public class App
 	    	ApplicationContext context = new ClassPathXmlApplicationContext("core-context.xml");
 	    	
 	    	
-	    	
 	    	System.out.println("/*Programa gestor de cuentas bancarias*/");
 	    	System.out.println("/*Bienvenido al sistema */  \n");
 	    	do
@@ -56,7 +55,8 @@ public class App
 		    			+ "\n4)Ver Cuentas"
 		    			+ "\n5)Inserta Catalogo Tipo Cuentas"
 		    			+ "\n6)Inserta Catalogo Banco"
-		    			+ "\n7)Salir");
+		    			+ "\n7)Salir"
+		    			+ "\n8)Ayuda");
 		    	resp = in.nextInt();
 		    	switch(resp)
 		    	{
@@ -154,7 +154,7 @@ public class App
 		    			band3 = true;
 		    			acc = new Account();
 		    			user = new User();
-		    			double deposit = 0;
+		    			double deposit = 0,saldo = 0;
 		    			do
 		    			{
 			    			System.out.println("Ingresa el ID de la cuenta a usar");
@@ -194,6 +194,7 @@ public class App
 			        	    				band = false;
 			        	    			}
 		        	    			}while(band);
+		        	    			saldo = acc.getBalance();
 		        	    			accFact.getImplement(acc).deposito(acc,deposit);
 		        	    			try
 		        	    	        {
@@ -201,15 +202,17 @@ public class App
 		        	    	            KieContainer kContainer = ks.getKieClasspathContainer();
 		        	    	            KieSession kSession = kContainer.newKieSession("ksession-rule");   
 		        	    	            org.kie.api.runtime.rule.FactHandle factl;
-		        	    	            Drools dro = new Drools(deposit,acc.getBalance(),((acc.getIdtipocuenta() == 1)?"CuentaAhorros":"CuentaCheques"));
+		        	    	            Drools dro = new Drools(deposit,saldo,((acc.getIdtipocuenta() == 1)?"CuentaAhorros":"CuentaCheques"));
 		        	    	            factl = kSession.insert(dro);
 		        	    	            if(kSession.fireAllRules() == 0)
 		        	    	            {
+		        	    	            
 		        	    	            	System.out.println("Deposito listo!");
 		        	    	            }
 		        	    	        }catch(Throwable t){
 		        	    	        	System.out.println(t);
 		        	    	        }
+		        	    			
 		        	    		break;
 		        	    	case 2:
 		        	    		double withdraw = 0;
@@ -267,6 +270,11 @@ public class App
 		    		case 7:
 		    			System.out.println("Saliendo del programa....");
 		    			bandMain = false;
+		    			break;
+		    		case 8:
+		    			System.out.println("y/* : y = aceptar , * = Cancelar con cualquier tecla \n");
+		    			System.out.println("Insertar los catalogos primero antes de realizar cualquier otra accion  \n");
+		    			System.out.println("Asegurarse de crear clientes y cuentas antes de usar o ver cuentas \n");
 		    			break;
 		    		default:
 		    			System.out.println("Opción incorrecta, intente nuevamente");

@@ -1,6 +1,5 @@
 package com.beeva.app.Banco;
 
-import java.util.List;
 import java.util.Scanner;
 
 import org.kie.api.KieServices;
@@ -18,7 +17,6 @@ import com.beeva.app.impl.AccountImpl;
 import com.beeva.app.impl.AccountTypeImpl;
 import com.beeva.app.impl.BankImpl;
 import com.beeva.app.impl.UserImpl;
-import com.beeva.app.inter.CuentaInterface;
 import com.beeva.app.model.Account;
 import com.beeva.app.model.AccountType;
 import com.beeva.app.model.Bank;
@@ -34,20 +32,18 @@ public class App
 	public static void main( String[] args )
     {    		
 			int resp;
-	    	boolean bandMain = true, band = true, band3 = true;
-	    	User user;
-	    	Account acc;
-	    	UserDAO userDao;
-	    	AccountDAO accDao;
+	    	boolean bandMain = true;    	
 	    	Scanner in = new Scanner(System.in);
 	    	ApplicationContext context = new ClassPathXmlApplicationContext("core-context.xml");
-	    	
-	    	
 	    	System.out.println("/*Programa gestor de cuentas bancarias*/");
 	    	System.out.println("/*Bienvenido al sistema */  \n");
 	    	do
 	    	{
-	    		
+	    		boolean band = true,band3 = true;
+	    		User user = new User();
+	    		Account acc = new Account();
+	    		UserDAO userDao = (UserDAO)context.getBean(UserImpl.class);
+	    		AccountDAO accDao = (AccountDAO)context.getBean(AccountImpl.class);
 		    	System.out.println("/*Menu*/"
 		    			+ "\n1)Insertar Cliente"
 		    			+ "\n2)Insertar Cuenta"
@@ -61,46 +57,42 @@ public class App
 		    	switch(resp)
 		    	{
 		    		case 1:
-		    			user = new User();
 		    			boolean bandClient = true;
-		    			
 		    			do
 		    			{
-		    			System.out.println("/*Insertar Cliente*/");
-		    			in.nextLine();
-		    			System.out.println("Introduce el nombre: ");
-		    			String firstName = in.nextLine();	
-		    			System.out.println("Introduce los apellidos: ");
-		    			String lastName = in.nextLine();
-		    			System.out.println("¿Estan correctos los siguientes datos? y/* \n "
-		    					+ "Nombre: "+ firstName + " Apellidos: "+ lastName);
-		    			if(in.next().charAt(0) == 'y')
-		    			{
-		    				//INSERTA PROPIEDADES AL OBJETO
-		    				user.setApellido(lastName);
-		        	    	user.setNombre(firstName);
-		        	    	//INSERTA EL OBJETO A LA BD
-		        	    	
-		        	    	userDao = (UserDAO)context.getBean(UserImpl.class);
-		        	    	if(userDao.set(user))
-		        	    		System.out.println("Cliente creado exitosamente!!!");
-		        	    	else
-		        	    		System.out.println("Hubo un error al crear el cliente, intente nuevamente más tarde!!!");
-		        	    	bandClient = false;
-		    			}
+			    			System.out.println("/*Insertar Cliente*/");
+			    			in.nextLine();
+			    			System.out.println("Introduce el nombre: ");
+			    			String firstName = in.nextLine();	
+			    			System.out.println("Introduce los apellidos: ");
+			    			String lastName = in.nextLine();
+			    			System.out.println("¿Estan correctos los siguientes datos? y/* \n "
+			    					+ "Nombre: "+ firstName + " Apellidos: "+ lastName);
+			    			if(in.next().charAt(0) == 'y')
+			    			{
+			    				//INSERTA PROPIEDADES AL OBJETO
+			    				user.setApellido(lastName);
+			        	    	user.setNombre(firstName);
+			        	    	//INSERTA EL OBJETO A LA BD
+			        	    	
+			        	    	
+			        	    	if(userDao.set(user))
+			        	    		System.out.println("Cliente creado exitosamente!!!");
+			        	    	else
+			        	    		System.out.println("Hubo un error al crear el cliente, intente nuevamente más tarde!!!");
+			        	    	bandClient = false;
+			    			}
 		    			}while(bandClient);
 		    	    	
 		    	    	
 		    			
 		    			break;
 		    		case 2:
+		    			//Declaracion de variables
 		    			int clientID, opc, accountType = 0;
 		    			double balance;
 		    			String accTypeName = "";
-		    			band = true;
-		    			band3 = true;
-		    			acc = new Account();
-		    			user = new User();
+		    			
 		    			do
 		    			{
 		    			System.out.println("/*Insertar Cuenta*/");
@@ -140,7 +132,6 @@ public class App
 		        	    	acc.setIdtipocuenta(accountType);
 		        	    	acc.setIdcliente(clientID);
 		        	    	//INSERTA EL OBJETO A LA BD
-		        	    	accDao = (AccountDAO) context.getBean(AccountImpl.class);
 		        	    	if(accDao.setAcc(acc))
 		        	    		System.out.println("Cuenta creada exitosamente!!!");
 		        	    	else
@@ -150,16 +141,11 @@ public class App
 		    			}while(band);
 		    			break;
 		    		case 3:
-		    			band = true;
-		    			band3 = true;
-		    			acc = new Account();
-		    			user = new User();
 		    			double deposit = 0,saldo = 0;
 		    			do
 		    			{
 			    			System.out.println("Ingresa el ID de la cuenta a usar");
 			    			int accID = in.nextInt();
-			    			acc = new Account();
 		        	    	accDao = (AccountDAO) context.getBean(AccountImpl.class);
 		        	    	userDao = (UserDAO) context.getBean(UserImpl.class);
 		        	    	acc = (Account) accDao.getAccById(accID);
@@ -203,7 +189,8 @@ public class App
 		        	    	            KieSession kSession = kContainer.newKieSession("ksession-rule");   
 		        	    	            org.kie.api.runtime.rule.FactHandle factl;
 		        	    	            Drools dro = new Drools(deposit,saldo,((acc.getIdtipocuenta() == 1)?"CuentaAhorros":"CuentaCheques"));
-		        	    	            factl = kSession.insert(dro);
+		        	    	            //factl = kSession.insert(dro);
+		        	    	            kSession.insert(dro);
 		        	    	            if(kSession.fireAllRules() == 0)
 		        	    	            {
 		        	    	            
@@ -237,7 +224,6 @@ public class App
 		    		case 4:
 		    			System.out.println("Ingresa el ID de la cuenta a verificar");
 		    			int accID = in.nextInt();
-		    			acc = new Account();
 	        	    	accDao = (AccountDAO) context.getBean(AccountImpl.class);
 	        	    	userDao = (UserDAO) context.getBean(UserImpl.class);
 	        	    	acc = (Account) accDao.getAccById(accID);
